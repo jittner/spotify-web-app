@@ -109,7 +109,7 @@ def test():
     return user.test()
 
 
-@app.route('/playlist_recommendation', methods=['POST'])
+@app.route('/playlist_recommendation', methods=['GET', 'POST'])
 def get_recommendations_from_playlist():
     user = get_session_client()
     playlist = request.args.get('playlist')
@@ -120,6 +120,26 @@ def get_recommendations_from_playlist():
         target_length
     )
     return recommendations
+
+
+@app.route('/copy_playlist', methods=['POST'])
+def copy_playlist():
+    user = get_session_client()
+    source_playlist = request.args.get('source')
+    dest_playlist = request.args.get('destination')
+    source_id = get_playlist_id(source_playlist)
+    dest_id = get_playlist_id(dest_playlist)
+    user.copy_playlist(source_id, dest_id)
+    return dest_id
+
+
+@app.route('/find_duplicates', methods=['GET', 'POST'])
+def find_duplicates():
+    user = get_session_client()
+    playlist = request.args.get('playlist')
+    playlist_id = get_playlist_id(playlist)
+    duplicates = user.find_duplicate_songs(playlist_id)
+    return jsonify(duplicates)
 
 
 if __name__ == '__main__':

@@ -122,7 +122,7 @@ class User():
         )
 
     @update_spotipy_client
-    def playlist_mover(self, first_playlist_id, second_playlist_id):
+    def copy_playlist(self, first_playlist_id, second_playlist_id):
         username = self.__get_current_spotify_user()['id']
         first_playlist = self.__sp.playlist_tracks(first_playlist_id)
         playlist_tracks = first_playlist['items']
@@ -166,6 +166,14 @@ class User():
             exact_duplicates = {
                 track_id: track_positions[track_id] for track_id in duplicate_ids
             }
+
+        if possible_duplicates:
+            for key, value in possible_duplicates.items():
+                dupe_name_ids = list(value)
+                id_position_pairs = [
+                    {name_id: track_positions[name_id]} for name_id in dupe_name_ids
+                ]
+                possible_duplicates[key] = id_position_pairs
 
         return (exact_duplicates, possible_duplicates)
 
