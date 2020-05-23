@@ -261,6 +261,10 @@ class User():
             seed_tracks,
             target_size
         )
+        for track in recommendations['tracks']:
+            track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
+            artist_names = [artist['name'] for artist in track['artists']]
+            track['artist_names'] = ', '.join(artist_names)
         return recommendations
 
     @update_spotipy_client
@@ -290,17 +294,25 @@ class User():
             seed_tracks,
             target_size
         )
+        for track in recommendations['tracks']:
+            track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
+            artist_names = [artist['name'] for artist in track['artists']]
+            track['artist_names'] = ', '.join(artist_names)
         return recommendations
 
     @update_spotipy_client
     def get_playlist_recommendations(self, playlist_id, target_playlist_length=20):
         playlist_df = self.__get_playlist_attributes_df(playlist_id)
         seed_tracks = self.__cluster_playlist(playlist_df)
-        new_playlist = self.get_recommendations_with_direct_seed(
+        recommendations = self.get_recommendations_with_direct_seed(
             seed_tracks=seed_tracks,
             target_size=target_playlist_length
         )
-        return new_playlist
+        for track in recommendations['tracks']:
+            track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
+            artist_names = [artist['name'] for artist in track['artists']]
+            track['artist_names'] = ', '.join(artist_names)
+        return recommendations
 
     def __cluster_playlist(self, playlist_df):
         cluster_features = ['acousticness', 'danceability', 'instrumentalness',

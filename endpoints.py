@@ -17,6 +17,7 @@ from uuid import uuid4
 import pickle
 from functools import wraps
 from user import User
+from flask_cors import CORS
 
 
 CONFIG_FILE = 'auth.yaml'
@@ -41,6 +42,7 @@ SESSION_REDIS = redis.Redis(
 app.config.from_object(__name__)
 sess = Session(app)
 sess.init_app(app)
+CORS(app, supports_credentials=True)
 
 
 def serialize_user(user):
@@ -68,6 +70,7 @@ def get_session_client():
     if session.get('id'):
         user = deserialize_user()
     else:
+        print("no cookie!")
         user = establish_session()
     return user
 
@@ -92,7 +95,7 @@ def get_code():
     # state = request.args.get('state')
     user.set_code(auth_code)
     serialize_user(user)
-    return('success')
+    return('auth code retrieved')
 
 
 @app.route('/')
@@ -100,7 +103,7 @@ def home():
     # if session.get('id'):
     #     session.pop('id')
     user = get_session_client()
-    return 'hello world'
+    return('hello world')
 
 
 @app.route('/test')
@@ -112,8 +115,9 @@ def test():
 @app.route('/playlist_recommendation', methods=['GET', 'POST'])
 def get_recommendations_from_playlist():
     user = get_session_client()
-    playlist = request.args.get('playlist')
-    target_length = request.args.get('length')
+    request_data = request.get_json()
+    playlist = request_data['playlist']
+    target_length = request_data['length']
     playlist_id = get_playlist_id(playlist)
     recommendations = user.get_playlist_recommendations(
         playlist_id,
@@ -144,4 +148,3 @@ def find_duplicates():
 
 if __name__ == '__main__':
     app.run(debug=True, host='localhost', port=5000)
-    # app.run(debug=True)
