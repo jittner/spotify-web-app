@@ -22,8 +22,8 @@ class App extends React.Component {
   render() {
     return (
       <div>
-      <Jumbotron>
-        <h1 className="header">Spotify Tools</h1>
+      <Jumbotron fluid>
+        <h1 className="header">Tools for Spotify</h1>
       </Jumbotron>
       <Router>
         <Switch>
@@ -39,65 +39,5 @@ class App extends React.Component {
     );
   }
 }
-
-// const App = () => (
-//   <Container className="p-3">
-//     <Jumbotron>
-//       <h1 className="header">Spotify Tools</h1>
-//     </Jumbotron>
-//     <CardGroup>
-//       <Card>
-//         <Card.Body>
-//           <Card.Title>Card title</Card.Title>
-//           <Card.Text>
-//             This is a wider card with supporting text below as a natural lead-in to
-//             additional content. This content is a little bit longer.
-//           </Card.Text>
-//         </Card.Body>
-//         <Card.Footer>
-//           <small className="text-muted">Last updated 3 mins ago</small>
-//         </Card.Footer>
-//       </Card>
-//       <Card>
-//         <Card.Body>
-//           <Card.Title>Card title</Card.Title>
-//           <Card.Text>
-//             This card has supporting text below as a natural lead-in to additional
-//             content.{' '}
-//           </Card.Text>
-//         </Card.Body>
-//         <Card.Footer>
-//           <small className="text-muted">Last updated 3 mins ago</small>
-//         </Card.Footer>
-//       </Card>
-//       <Card>
-//         <Card.Body>
-//           <Card.Title>Card title</Card.Title>
-//           <Card.Text>
-//             This is a wider card with supporting text below as a natural lead-in to
-//             additional content. This card has even longer content than the first to
-//             show that equal height action.
-//           </Card.Text>
-//         </Card.Body>
-//         <Card.Footer>
-//           <small className="text-muted">Last updated 3 mins ago</small>
-//         </Card.Footer>
-//       </Card>
-//       <Card>
-//         <Card.Body>
-//           <Card.Title>Card title</Card.Title>
-//           <Card.Text>
-//             This is a wider card with supporting text below as a natural lead-in to
-//             additional content. This card has even longer content than the first to
-//             show that equal height action.
-//           </Card.Text>
-//         </Card.Body>
-//         <Card.Footer>
-//           <small className="text-muted">Last updated 3 mins ago</small>
-//         </Card.Footer>
-//       </Card>
-//     </CardGroup>
-//   </Container>
-// );
 
 export default App;

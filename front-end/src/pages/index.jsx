@@ -1,5 +1,4 @@
 import React from "react";
-import Jumbotron from 'react-bootstrap/Jumbotron';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';

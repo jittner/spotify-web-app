@@ -1,10 +1,9 @@
 import React from "react";
-import Jumbotron from 'react-bootstrap/Jumbotron';
-import CardGroup from 'react-bootstrap/CardGroup';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
+import Accordion from 'react-bootstrap/Accordion';
 import { Link } from "react-router-dom";
 
 class MyForm extends React.Component {
@@ -13,8 +12,7 @@ class MyForm extends React.Component {
       this.handleSubmit = this.handleSubmit.bind(this);
       this.handleChange = this.handleChange.bind(this);
       this.state = {
-        //   playlist: "",
-        //   length: "",
+          length: "20",
           data: null,
           errorMessage: null
       };
@@ -28,34 +26,23 @@ class MyForm extends React.Component {
   
     handleSubmit(event) {
       event.preventDefault();
-      // format data body using state values, i.e:
-      // const json = JSON.stringify(this.state);
-      // const data = new FormData(event.target);
-    //   const formData = new FormData();
-    //   formData.append('playlist', this.state.playlist);
-    //   formData.append('length', this.state.length);
       const sendData = {
           playlist: this.state.playlist,
           length: this.state.length
       };
       const data = JSON.stringify(sendData);
-    //   console.log(sendData);
-    //   console.log(data);
       fetch('http://localhost:5000/playlist_recommendation', {
         method: 'POST',
         headers: {
-            // 'Content-Type': 'multipart/form-data',
             'Content-Type': 'application/json',
             'Accept': 'application/json',
                               
         },
-        // body: formData,
         body: data,
         credentials: 'include'
       })
       .then(async response => {
             const recommendations = await response.json();
-            // console.log(recommendations);
             if (!response.ok){
                 const error = (recommendations && recommendations.message) || response.status;
                 return Promise.reject(error);
@@ -110,13 +97,23 @@ class MyForm extends React.Component {
         </div>
         {this.state.data ?
             <div className="Output">
+                <p />
+                <Accordion>
                 {
                     this.state.data.tracks.map((track, index) =>  (
-                        <li key={index}>
-                            {track.name}
-                        </li>
+                        <Card key={index}>
+                        <Accordion.Toggle as={Card.Header} eventKey={index} key={index}>
+                            "{track.name}" - {track.artist_names}
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey={index}>
+                        <Card.Body>
+                            <iframe src={track.embed_url} width="300" height="80" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        </Card.Body>
+                        </Accordion.Collapse>
+                        </Card>
                     ))
                 }
+                </Accordion>
             </div>
             :
             <div />
@@ -137,7 +134,6 @@ class PlaylistRecommendations extends React.Component {
             <Card.Body>
                 <Card.Title>Get recommendations from a playlist</Card.Title>
                 <Card.Text>
-                Submit a playlist 
                 </Card.Text>
                 <MyForm />
             </Card.Body>
