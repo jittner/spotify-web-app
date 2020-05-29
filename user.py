@@ -191,7 +191,19 @@ class User():
         )
 
     @update_spotipy_client
-    def create_playlist(self, playlist_name, public=True, description=''):
+    def create_playlist(self, playlist_name, playlist, privacy):
+        if privacy == 'public':
+            public = True
+        else:
+            public = False
+        new_playlist = self.__create_empty_playlist(playlist_name, public)
+        playlist_id = new_playlist['id']
+        track_ids = [track['id'] for track in playlist['tracks']]
+        self.__add_to_playlist(playlist_id, track_ids)
+        return new_playlist
+
+    @update_spotipy_client
+    def __create_empty_playlist(self, playlist_name, public=True, description=''):
         user = self.__get_current_spotify_user()['id']
         playlist = self.__sp.user_playlist_create(
             user,
@@ -202,7 +214,7 @@ class User():
         return playlist
 
     @update_spotipy_client
-    def add_to_playlist(self, playlist_id, tracks):
+    def __add_to_playlist(self, playlist_id, tracks):
         user = self.__get_current_spotify_user()['id']
         snapshot = self.__sp.user_playlist_add_tracks(
             user,
@@ -261,10 +273,7 @@ class User():
             seed_tracks,
             target_size
         )
-        for track in recommendations['tracks']:
-            track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
-            artist_names = [artist['name'] for artist in track['artists']]
-            track['artist_names'] = ', '.join(artist_names)
+        recommendations = self.__process_recommendations(recommendations)
         return recommendations
 
     @update_spotipy_client
@@ -294,10 +303,7 @@ class User():
             seed_tracks,
             target_size
         )
-        for track in recommendations['tracks']:
-            track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
-            artist_names = [artist['name'] for artist in track['artists']]
-            track['artist_names'] = ', '.join(artist_names)
+        recommendations = self.__process_recommendations(recommendations)
         return recommendations
 
     @update_spotipy_client
@@ -308,6 +314,10 @@ class User():
             seed_tracks=seed_tracks,
             target_size=target_playlist_length
         )
+        recommendations = self.__process_recommendations(recommendations)
+        return recommendations
+
+    def __process_recommendations(self, recommendations):
         for track in recommendations['tracks']:
             track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
             artist_names = [artist['name'] for artist in track['artists']]

@@ -88,6 +88,33 @@ def get_playlist_id(playlist_input: str):
                 return split_url[idx+1][0:22]
 
 
+def parse_recommendation(user, request_data):
+    target_length = request_data['length']
+    request_type = request_data['request_type']
+    if request_type == 'from_playlist':
+        playlist = request_data['playlist']
+        playlist_id = get_playlist_id(playlist)
+        recommendations = user.get_playlist_recommendations(
+            playlist_id,
+            target_length
+        )
+    elif request_type == 'from_generated':
+        artists = request_data['artists']
+        tracks = request_data['tracks']
+        artists_length = request_data['artists_length']
+        tracks_length = request_data['tracks_length']
+        top_artists = {artists_length: artists}
+        top_tracks = {tracks_length: tracks}
+        seed_genres = None
+        recommendations = user.get_recommendations_with_generated_seed(
+            top_artists,
+            top_tracks,
+            seed_genres,
+            target_length
+        )
+    return recommendations
+
+
 @app.route('/callback', methods=['GET', 'POST'])
 def get_code():
     user = get_session_client()
@@ -126,11 +153,20 @@ def get_recommendations_from_playlist():
     return recommendations
 
 
+@app.route('/recommendation', methods=['GET', 'POST'])
+def get_recommendations():
+    user = get_session_client()
+    request_data = request.get_json()
+    recommendations = parse_recommendation(user, request_data)
+    return recommendations
+
+
 @app.route('/copy_playlist', methods=['POST'])
 def copy_playlist():
     user = get_session_client()
-    source_playlist = request.args.get('source')
-    dest_playlist = request.args.get('destination')
+    request_data = request.get_json()
+    source_playlist = request_data['source']
+    dest_playlist = request_data['source']
     source_id = get_playlist_id(source_playlist)
     dest_id = get_playlist_id(dest_playlist)
     user.copy_playlist(source_id, dest_id)
@@ -140,10 +176,22 @@ def copy_playlist():
 @app.route('/find_duplicates', methods=['GET', 'POST'])
 def find_duplicates():
     user = get_session_client()
-    playlist = request.args.get('playlist')
+    request_data = request.get_json()
+    playlist = request_data['playlist']
     playlist_id = get_playlist_id(playlist)
     duplicates = user.find_duplicate_songs(playlist_id)
     return jsonify(duplicates)
+
+
+@app.route('/create_playlist', methods=['GET', 'POST'])
+def create_playlist():
+    user = get_session_client()
+    request_data = request.get_json()
+    playlist_name = request_data['name']
+    playlist = request_data['playlist']
+    privacy = request_data['privacy']
+    playlist = user.create_playlist(playlist_name, playlist, privacy)
+    return playlist
 
 
 if __name__ == '__main__':

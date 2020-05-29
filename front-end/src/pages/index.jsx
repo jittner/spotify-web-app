@@ -30,6 +30,9 @@ class MainPage extends React.Component {
                 This card has supporting text below as a natural lead-in to additional
                 content.{' '}
               </Card.Text>
+              <Button variant="link">
+                <Link to="/recommendations"> Get recommendations </Link>
+              </Button>
             </Card.Body>
             <Card.Footer>
               <small className="text-muted">Last updated 3 mins ago</small>
