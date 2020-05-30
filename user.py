@@ -191,19 +191,19 @@ class User():
         )
 
     @update_spotipy_client
-    def create_playlist(self, playlist_name, playlist, privacy):
+    def create_playlist_from_tracks(self, playlist_name, playlist, privacy):
         if privacy == 'public':
             public = True
         else:
             public = False
-        new_playlist = self.__create_empty_playlist(playlist_name, public)
+        new_playlist = self.create_empty_playlist(playlist_name, public)
         playlist_id = new_playlist['id']
         track_ids = [track['id'] for track in playlist['tracks']]
         self.__add_to_playlist(playlist_id, track_ids)
         return new_playlist
 
     @update_spotipy_client
-    def __create_empty_playlist(self, playlist_name, public=True, description=''):
+    def create_empty_playlist(self, playlist_name, public=True, description=''):
         user = self.__get_current_spotify_user()['id']
         playlist = self.__sp.user_playlist_create(
             user,

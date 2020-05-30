@@ -44,7 +44,6 @@ class CreatePlaylist extends React.Component {
     render() {
         return (
             <div>
-                <h2>Add to new playlist</h2>
                 <Form onSubmit={this.handleSubmit}>
                 <Form.Group>
                     <Form.Control 

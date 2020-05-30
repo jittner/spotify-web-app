@@ -18,6 +18,7 @@ import {
 import MainPage from "./pages";
 import PlaylistRecommendations from "./pages/playlist-recommendations";
 import Recommendations from "./pages/recommendations";
+import CopyPlaylist from "./pages/copy-playlist";
 import './App.css';
 
 library.add(fab);
@@ -27,7 +28,7 @@ class App extends React.Component {
     return (
       <div>
       <Jumbotron fluid>
-        <h1 className="header">Tools for Spotify</h1>
+        <h1 className="header">Toolify</h1>
       </Jumbotron>
       <Router>
         <Switch>
@@ -39,6 +40,9 @@ class App extends React.Component {
           </Route>
           <Route path="/recommendations">
             <Recommendations />
+          </Route>
+          <Route path="/copy-playlist">
+            <CopyPlaylist />
           </Route>
         </Switch>
       </Router>

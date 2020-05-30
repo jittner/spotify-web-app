@@ -214,6 +214,7 @@ class GeneratedForm extends React.Component {
                 </Accordion>
                 </Col>
                 <Col>
+                    <h2>Add to new playlist</h2>
                     <CreatePlaylist data={this.state.data} />
                 </Col>
                 </Row>

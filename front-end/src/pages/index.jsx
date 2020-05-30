@@ -1,5 +1,5 @@
 import React from "react";
-import CardGroup from 'react-bootstrap/CardGroup';
+import CardColumns from 'react-bootstrap/CardColumns';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
@@ -9,14 +9,14 @@ class MainPage extends React.Component {
     render() {
     return (
         <Container className="p-3">
-        <CardGroup>
+        <CardColumns>
           <Card>
             <Card.Body>
               <Card.Text>
                 Use an existing playlist to generate recommended songs
               </Card.Text>
-              <Button variant="link">
-                <Link to="/playlist-recommendations"> Get recommendations </Link>
+              <Button variant="link" as={Link} to="/playlist-recommendations">
+                Get recommendations 
               </Button>
             </Card.Body>
             <Card.Footer>
@@ -30,8 +30,8 @@ class MainPage extends React.Component {
                 This card has supporting text below as a natural lead-in to additional
                 content.{' '}
               </Card.Text>
-              <Button variant="link">
-                <Link to="/recommendations"> Get recommendations </Link>
+              <Button variant="link" as={Link} to="/recommendations">
+                Get recommendations
               </Button>
             </Card.Body>
             <Card.Footer>
@@ -42,9 +42,10 @@ class MainPage extends React.Component {
             <Card.Body>
               <Card.Title>Card title</Card.Title>
               <Card.Text>
-                This is a wider card with supporting text below as a natural lead-in to
-                additional content. This card has even longer content than the first to
-                show that equal height action.
+                Copy an existing playlist to another
+                <Button variant="link" as={Link} to="/copy-playlist">
+                    Copy playlist 
+                </Button>
               </Card.Text>
             </Card.Body>
             <Card.Footer>
@@ -64,7 +65,7 @@ class MainPage extends React.Component {
               <small className="text-muted">Last updated 3 mins ago</small>
             </Card.Footer>
           </Card>
-        </CardGroup>
+        </CardColumns>
       </Container>
     );
     }

@@ -166,7 +166,7 @@ def copy_playlist():
     user = get_session_client()
     request_data = request.get_json()
     source_playlist = request_data['source']
-    dest_playlist = request_data['source']
+    dest_playlist = request_data['destination']
     source_id = get_playlist_id(source_playlist)
     dest_id = get_playlist_id(dest_playlist)
     user.copy_playlist(source_id, dest_id)
@@ -184,14 +184,25 @@ def find_duplicates():
 
 
 @app.route('/create_playlist', methods=['GET', 'POST'])
-def create_playlist():
+def create_playlist_from_tracks():
     user = get_session_client()
     request_data = request.get_json()
     playlist_name = request_data['name']
-    playlist = request_data['playlist']
+    playlist_tracks = request_data['playlist']
     privacy = request_data['privacy']
-    playlist = user.create_playlist(playlist_name, playlist, privacy)
+    playlist = user.create_playlist_from_tracks(
+        playlist_name, playlist_tracks, privacy)
     return playlist
+
+
+@app.route('/create_empty_playlist', methods=['GET', 'POST'])
+def create_empty_playlist():
+    user = get_session_client()
+    request_data = request.get_json()
+    playlist_name = request_data['name']
+    privacy = request_data['privacy']
+    playlist = user.create_empty_playlist(playlist_name, privacy)
+    return playlist['external_urls']
 
 
 if __name__ == '__main__':

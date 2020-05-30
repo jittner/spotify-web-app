@@ -1,9 +1,58 @@
-.jumbotron {
-    background-color: #1DB954;
-    color: #FFFFFF;
-    font-family: 'Montserrat', sans-serif;
+@font-face {
+    font-family: Circular;
+    src: url('fonts/circular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
 }
 
+@font-face {
+    font-family: Circular;
+    src: url('fonts/circular-bold.otf') format('opentype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: Circular;
+    src: url('fonts/circular_light.otf') format('opentype');
+    font-weight: light;
+}
+
+.jumbotron {
+    background-color: #1ED761;
+    color: #FFFFFF;
+    font-family: Circular, sans-serif;
+}
+
+.jumbotron h1 {
+    font-size: 5rem;
+    font-weight: bold;
+}
+
+.btn {
+    border-width: 0;
+    border-radius: 10rem;
+    padding: 0.5rem 2rem;
+    background-color: #1DB954;
+    color: #FFFFFF;
+}
+
+.btn:hover {
+    background-color: #1ED761;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+
+
 .card {
-    font-family: 'Nunito', sans-serif;
+    font-family: Circular, sans-serif;
+}
+
+.card p {
+    font-weight: light;
 }
