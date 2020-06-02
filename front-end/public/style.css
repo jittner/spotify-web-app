@@ -17,6 +17,37 @@
     font-weight: light;
 }
 
+@font-face {
+    font-family: Circular;
+    src: url('fonts/circular-medium.otf') format('opentype');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: AvenirNext;
+    src: url('fonts/AvenirNext.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: AvenirNext;
+    src: url('fonts/AvenirNext-Bold.otf') format('opentype');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: AvenirNext;
+    src: url('fonts/AvenirNext-Medium.otf') format('opentype');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: AvenirNext;
+    src: url('fonts/AvenirNext-Demi.otf') format('opentype');
+    font-weight: 600;
+}
+
 .jumbotron {
     background-color: #1ED761;
     color: #FFFFFF;
@@ -26,6 +57,8 @@
 .jumbotron h1 {
     font-size: 5rem;
     font-weight: bold;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
 }
 
 .btn {
@@ -47,12 +80,45 @@
     text-decoration: none;
 }
 
-
+.a:hover {
+    text-decoration: none;
+}
 
 .card {
     font-family: Circular, sans-serif;
+    /* border-radius: 0.6rem; */
 }
 
 .card p {
     font-weight: light;
+}
+
+.card:hover {
+    text-decoration: none;
+}
+
+.feature-card {
+    font-family: AvenirNext, sans-serif;
+    font-weight: 600;
+    border-radius: 0.6rem;
+    border-width: 0;
+    font-size: 1.8rem;
+    line-height: 104%;
+    color: #FFFFFF;
+    background-color: #1DB954;
+    box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1);
+
+}
+
+.feature-card:hover {
+    background-color: #1ED761;
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.feature-card p {
+    padding-top: 2rem;
+    padding-right: 1.3rem;
+    padding-bottom: 3rem;
+    padding-left: 1.3rem;
 }

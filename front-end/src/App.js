@@ -19,6 +19,7 @@ import MainPage from "./pages";
 import PlaylistRecommendations from "./pages/playlist-recommendations";
 import Recommendations from "./pages/recommendations";
 import CopyPlaylist from "./pages/copy-playlist";
+import HeroHeader from "./components/hero-header";
 import './App.css';
 
 library.add(fab);
@@ -27,10 +28,11 @@ class App extends React.Component {
   render() {
     return (
       <div>
-      <Jumbotron fluid>
+      {/* <Jumbotron fluid>
         <h1 className="header">Toolify</h1>
-      </Jumbotron>
+      </Jumbotron> */}
       <Router>
+      <HeroHeader />
         <Switch>
           <Route exact={true} path="/">
             <MainPage />

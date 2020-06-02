@@ -10,47 +10,26 @@ class MainPage extends React.Component {
     return (
         <Container className="p-3">
         <CardColumns>
-          <Card>
+          <Card as={Link} to="/playlist-recommendations" className="feature-card">
             <Card.Body>
               <Card.Text>
                 Use an existing playlist to generate recommended songs
               </Card.Text>
-              <Button variant="link" as={Link} to="/playlist-recommendations">
-                Get recommendations 
-              </Button>
             </Card.Body>
-            <Card.Footer>
-              <small className="text-muted">Last updated 3 mins ago</small>
-            </Card.Footer>
           </Card>
-          <Card>
+          <Card as={Link} to="/recommendations" className="feature-card">
             <Card.Body>
-              <Card.Title>Card title</Card.Title>
               <Card.Text>
-                This card has supporting text below as a natural lead-in to additional
-                content.{' '}
+                Generate personalized song recommendations
               </Card.Text>
-              <Button variant="link" as={Link} to="/recommendations">
-                Get recommendations
-              </Button>
             </Card.Body>
-            <Card.Footer>
-              <small className="text-muted">Last updated 3 mins ago</small>
-            </Card.Footer>
           </Card>
-          <Card>
+          <Card as={Link} to="/copy-playlist" className="feature-card">
             <Card.Body>
-              <Card.Title>Card title</Card.Title>
               <Card.Text>
                 Copy an existing playlist to another
-                <Button variant="link" as={Link} to="/copy-playlist">
-                    Copy playlist 
-                </Button>
               </Card.Text>
             </Card.Body>
-            <Card.Footer>
-              <small className="text-muted">Last updated 3 mins ago</small>
-            </Card.Footer>
           </Card>
           <Card>
             <Card.Body>
