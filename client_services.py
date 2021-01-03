@@ -1,18 +1,57 @@
-import spotipy
 import collections
 import typing
-import pandas as pd
+from functools import wraps
+from typing import Dict, List, Set, Tuple
+
 import numpy as np
-from typing import Tuple, Set, Dict, List
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
+import spotipy
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 API_LIMIT = 50
 
 
+def get_spotipy_client(func):
+    @wraps(func)
+    def wrapper(token, *args, **kwargs):
+        client = spotipy.Spotify(auth=token)
+        return func(client, *args, **kwargs)
+    return wrapper
+
+
+@get_spotipy_client
+def get_user_homepage_info(client) -> dict:
+    user_profile = client.current_user()
+    top_artists = client.current_user_top_artists(20, 0, 'long_term')
+    top_tracks = client.current_user_top_tracks(20, 0, 'long_term')
+    homepage_info = {
+        'followers': user_profile['followers']['total'],
+        'image': user_profile['images'][0]['url'],
+        'name': user_profile['display_name'],
+        'top_artists': top_artists['items'],
+        'top_tracks': top_tracks['items']
+    }
+    return homepage_info
+
+
+@get_spotipy_client
+def get_user_playlists(client) -> List[dict]:
+    playlists = []
+    paging_object = client.current_user_playlists()
+    while paging_object:
+        playlists.extend(paging_object['items'])
+        if paging_object['next']:
+            paging_object = client.next(paging_object)
+        else:
+            paging_object = None
+    return playlists
+
+
+@get_spotipy_client
 def copy_playlist(client, first_playlist_id: str, second_playlist_id: str):
     username = get_current_spotify_user(client)
-    first_playlist = client.playlist_tracks(first_playlist_id)
+    first_playlist = get_tracks_from_playlist(client, first_playlist_id)
     playlist_tracks = first_playlist['items']
     tracks_to_add = [track['track']['id'] for track in playlist_tracks]
     client.user_playlist_add_tracks(
@@ -22,15 +61,33 @@ def copy_playlist(client, first_playlist_id: str, second_playlist_id: str):
     )
 
 
+def get_tracks_from_playlist(client, playlist_id: str, paging_object=None) -> List[dict]:
+    """
+    Get the complete list of tracks from a playlist paging object.
+    If the paging object for the playlist isn't already provided,
+    retrieve it via Spotipy.
+    """
+    tracks = []
+    if not paging_object:
+        paging_object = client.playlist_tracks(playlist_id)
+    while paging_object:
+        tracks.extend(paging_object['items'])
+        if paging_object['next']:
+            paging_object = client.next(paging_object)
+        else:
+            paging_object = None
+    return tracks
+
+
 def get_current_spotify_user(client):
     user_spotify = client.current_user()
     username = user_spotify['id']
     return username
 
 
+@get_spotipy_client
 def find_duplicate_songs(client, playlist_id: str) -> Tuple[dict, dict]:
-    playlist = client.playlist_tracks(playlist_id)
-    tracks = playlist['items']
+    tracks = get_tracks_from_playlist(client, playlist_id)
     track_positions = collections.defaultdict(list)
     artists = collections.defaultdict(dict)
     duplicate_ids = set()
@@ -93,6 +150,7 @@ def format_track_artists(track: dict) -> str:
     return track_artists
 
 
+@get_spotipy_client
 def remove_track_from_playlist(client, playlist_id: str, tracks: list):
     # tracks format: [{"uri": X, "positions":[X]}, {etc}]
     user = get_current_spotify_user(client)
@@ -106,18 +164,22 @@ def remove_track_from_playlist(client, playlist_id: str, tracks: list):
     )
 
 
+@get_spotipy_client
 def create_playlist_from_tracks(client,
                                 playlist_name: str,
-                                playlist: dict,
+                                playlist_tracks: list,
                                 privacy: str) -> dict:
+    """
+    Create a new playlist for the current user,
+    given a list of track ids. Returns the new playlist object.
+    """
     if privacy == 'public':
         public = True
     else:
         public = False
     new_playlist = create_empty_playlist(client, playlist_name, public)
     playlist_id = new_playlist['id']
-    track_ids = [track['id'] for track in playlist['tracks']]
-    add_to_playlist(client, playlist_id, track_ids)
+    add_to_playlist(client, playlist_id, playlist_tracks)
     return new_playlist
 
 
@@ -135,7 +197,7 @@ def create_empty_playlist(client,
     return playlist
 
 
-def add_to_playlist(client, playlist_id: str, tracks: dict) -> str:
+def add_to_playlist(client, playlist_id: str, tracks: list) -> str:
     user = get_current_spotify_user(client)
     snapshot = client.user_playlist_add_tracks(
         user,
@@ -145,21 +207,53 @@ def add_to_playlist(client, playlist_id: str, tracks: dict) -> str:
     return snapshot
 
 
+@get_spotipy_client
 def get_playlist_recommendations(client,
                                  playlist_id: str,
-                                 target_playlist_length: int = 20):
-    playlist_df = get_playlist_attributes_df(client, playlist_id)
+                                 target_playlist_length: int = 20) -> dict:
+    seed_playlist = client.playlist(playlist_id)
+    seed_playlist_tracks = get_tracks_from_playlist(
+        client, seed_playlist, seed_playlist['tracks'])
+    playlist_df = get_playlist_attributes_df(
+        client, playlist_id, seed_playlist_tracks)
     seed_tracks = cluster_playlist(playlist_df)
-    recommendations = get_recommendations_with_direct_seed(
-        client,
+    recommendations = client.recommendations(
         seed_tracks=seed_tracks,
-        target_size=target_playlist_length
+        limit=target_playlist_length
     )
-    recommendations = process_recommendations(recommendations)
+    recommendations['tracks'] = remove_playlist_track_overlaps(
+        seed_playlist_tracks, recommendations['tracks'])
+    recommendations = get_full_tracks_for_recommendations(
+        client, recommendations)
     return recommendations
 
 
-def cluster_playlist(playlist_df):
+def remove_playlist_track_overlaps(first_playlist: list,
+                                   second_playlist: list) -> List[dict]:
+    """
+    Remove tracks from a recommendation playlist which
+    occur in the seed playlist.
+
+    Args:
+        - first_playlist: The list of tracks from the seed playlist
+        - second_playlist: The list of simplified track objects from the
+        recommendation playlist
+    """
+    first_playlist_ids = set([track['track']['id']
+                              for track in first_playlist])
+    processed_playlist = [
+        track for track in second_playlist
+        if track['id'] not in first_playlist_ids
+    ]
+    return processed_playlist
+
+
+def cluster_playlist(playlist_df) -> List[str]:
+    """
+    Use k-means clustering to group tracks into a target of 5
+    clusters based on audio attributes, and then
+    select 1 random song from each.
+    """
     cluster_features = ['acousticness', 'danceability', 'instrumentalness',
                         'energy', 'speechiness']
     df_cluster = playlist_df[cluster_features]
@@ -176,24 +270,43 @@ def cluster_playlist(playlist_df):
     return seed_songs
 
 
-def get_recommendations_with_direct_seed(
-    client,
-    seed_artists: str = None,
-    seed_genres: str = None,
-    seed_tracks: str = None,
-    target_size: int = 20
-):
+@get_spotipy_client
+def get_recommendations_with_direct_seed(client,
+                                         seed_artists: str = None,
+                                         seed_genres: str = None,
+                                         seed_tracks: str = None,
+                                         target_size: int = 20) -> dict:
     recommendations = client.recommendations(
         seed_artists,
         seed_genres,
         seed_tracks,
         target_size
     )
-    recommendations = process_recommendations(recommendations)
+    recommendations = get_full_tracks_for_recommendations(
+        client, recommendations)
+    return recommendations
+
+
+def get_full_tracks_for_recommendations(client, recommendations: dict) -> dict:
+    """
+    Retrieve the full track object for each simplified track
+    within the given recommendation object.
+    """
+    seed_tracks = [client.track(seed['id'])
+                   for seed in recommendations['seeds']]
+    recommendation_tracks = [client.track(track['id'])
+                             for track in recommendations['tracks']]
+    recommendations['tracks'] = recommendation_tracks
+    recommendations['seeds'] = seed_tracks
     return recommendations
 
 
 def process_recommendations(recommendations: dict) -> dict:
+    """
+    Create the url for an embedded Spotify track player for
+    each track in the list of recommendations, and format the artist
+    names to be one string.
+    """
     for track in recommendations['tracks']:
         track['embed_url'] = 'https://open.spotify.com/embed/track/' + track['id']
         artist_names = [artist['name'] for artist in track['artists']]
@@ -201,9 +314,48 @@ def process_recommendations(recommendations: dict) -> dict:
     return recommendations
 
 
-def get_playlist_attributes_df(client, playlist_id: str):
-    playlist_tracks = client.playlist_tracks(playlist_id)
-    tracks = playlist_tracks['items']
+@get_spotipy_client
+def get_playlist_analysis(client, playlist_id: str) -> dict:
+    """
+    Retrieve basic info about a playlist as well as the
+    averaged audio attributes of its tracks.
+    """
+    playlist = client.playlist(playlist_id)
+    playlist_tracks = get_tracks_from_playlist(
+        client, playlist, playlist['tracks'])
+    playlist_df = get_playlist_attributes_df(
+        client, playlist_id, playlist_tracks)
+    playlist_attributes = {
+        'acousticness': playlist_df['acousticness'].mean(),
+        'danceability': playlist_df['danceability'].mean(),
+        'energy': playlist_df['energy'].mean(),
+        'instrumentalness': playlist_df['instrumentalness'].mean(),
+        'liveness': playlist_df['liveness'].mean(),
+        'speechiness': playlist_df['speechiness'].mean(),
+        'valence': playlist_df['valence'].mean()
+    }
+    return {
+        'attributes': playlist_attributes,
+        'tracks': playlist_tracks,
+        'length': playlist['tracks']['total'],
+        'info': {
+            'description': playlist['description'],
+            'external_urls': playlist['external_urls'],
+            'images': playlist['images'],
+            'name': playlist['name'],
+            'owner': playlist['owner'],
+            'id': playlist['id']
+        }
+    }
+
+
+def get_playlist_attributes_df(client, playlist_id: str, tracks=None):
+    """
+    Create a complete aggregate DataFrame of the audio features from
+    a given playlist's tracks.
+    """
+    if not tracks:
+        tracks = get_tracks_from_playlist(client, playlist_id)
     df_tracks = get_track_init_df(tracks)
 
     artist_ids = df_tracks['artist_id'].unique().tolist()
@@ -222,6 +374,7 @@ def get_playlist_attributes_df(client, playlist_id: str):
 
 
 def get_track_init_df(tracks: list):
+    """Create the skeleton DataFrame for a given list of tracks."""
     df_tracks = pd.DataFrame(
         [[t['track']['id'], t['track']['name'], t['track']['artists'][0]['id'],
             t['track']['artists'][0]['name'], t['track']['album']['name'],
@@ -234,7 +387,7 @@ def get_track_init_df(tracks: list):
     return df_tracks
 
 
-def get_artists_df(client, artist_ids: list):
+def get_artists_df(client, artist_ids: List[str]):
     artist_list = []
     while artist_ids:
         artist_results = client.artists(artist_ids[:API_LIMIT])
@@ -279,13 +432,14 @@ def get_track_features_df(client, track_ids: list):
     return df_features
 
 
+@get_spotipy_client
 def get_recommendations_with_generated_seed(client, artists=None,
                                             tracks=None,
                                             seed_genres=None,
-                                            target_size=20):
+                                            target_size=20) -> dict:
     if artists:
         top_artists = [
-            get_top_artists(client, length, limit)
+            get_top_artists_ids(client, length, limit)
             for length, limit in artists.items()
         ]
         seed_artists = [
@@ -293,7 +447,7 @@ def get_recommendations_with_generated_seed(client, artists=None,
         ]
     if tracks:
         top_tracks = [
-            get_top_tracks(client, length, limit)
+            get_top_tracks_ids(client, length, limit)
             for length, limit in tracks.items()
         ]
         seed_tracks = [
@@ -305,38 +459,72 @@ def get_recommendations_with_generated_seed(client, artists=None,
         seed_tracks,
         target_size
     )
-    recommendations = process_recommendations(recommendations)
+    recommendations = get_full_tracks_for_recommendations(
+        client, recommendations)
     return recommendations
 
 
-def get_top_artists(client, length: str, limit: int) -> list:
+@get_spotipy_client
+def get_top_artists_ids(client, length: str, limit: str) -> List[str]:
     top_artists = client.current_user_top_artists(limit, 0, length)
     top_artist_ids = [artist['id'] for artist in top_artists['items']]
     return top_artist_ids
 
 
-def get_top_tracks(client, length: str, limit: str) -> list:
+@get_spotipy_client
+def get_top_tracks_ids(client, length: str, limit: str) -> List[str]:
     top_tracks = client.current_user_top_tracks(limit, 0, length)
     top_track_ids = [track['id'] for track in top_tracks['items']]
     return top_track_ids
 
 
+@get_spotipy_client
+def get_top_artists(client, length: str, limit=50) -> List[dict]:
+    artists = []
+    paging_object = client.current_user_top_artists(
+        limit=limit, time_range=length)
+    while paging_object:
+        artists.extend(paging_object['items'])
+        if paging_object['next']:
+            paging_object = client.next(paging_object)
+        else:
+            paging_object = None
+    return artists
+
+
+@get_spotipy_client
+def get_top_tracks(client, length: str, limit=50) -> List[dict]:
+    tracks = []
+    paging_object = client.current_user_top_tracks(
+        limit=limit, time_range=length)
+    while paging_object:
+        tracks.extend(paging_object['items'])
+        if paging_object['next']:
+            paging_object = client.next(paging_object)
+        else:
+            paging_object = None
+    return tracks
+
+
+@get_spotipy_client
 def get_artist_analysis(client, artist_ids: list):
     artists = client.artists(artist_ids)
     artist_ids = [artist['id'] for artist in artists['artists']]
-    df_artists = get_artists_df(artist_ids)
+    df_artists = get_artists_df(client, artist_ids)
     return df_artists
 
 
+@get_spotipy_client
 def get_track_analysis(client, track_ids: list):
     tracks = client.tracks(track_ids)
     track_ids = [track['id'] for track in tracks['tracks']]
     df_tracks = get_track_init_df(track_ids)
-    df_features = get_track_features_df(track_ids)
+    df_features = get_track_features_df(client, track_ids)
     combined_df = df_features.merge(df_tracks, on='id')
     return combined_df
 
 
+@get_spotipy_client
 def search(client, query: str, limit: int = 10, search_type: str = 'track'):
     return client.search(
         query,
