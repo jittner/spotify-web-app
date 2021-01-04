@@ -115,7 +115,7 @@ def get_top_tracks(term: str):
     }
 
 
-@app.route('/playlists', methods=['GET', 'POST'])
+@app.route('/user/playlists', methods=['GET', 'POST'])
 @access_token_required
 def playlists():
     if request.method == 'GET':
