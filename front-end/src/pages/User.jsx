@@ -1,12 +1,12 @@
 import React from "react";
 import Jumbotron from 'react-bootstrap/Jumbotron';
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Spinner from 'react-bootstrap/Spinner';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import styled from 'styled-components';
+import Loader from '../components/Loader';
 import TrackObject from '../components/TrackObject';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -22,6 +22,11 @@ const colors = {
     grey: '#404040',
     darkGrey: '#282828',
 };
+const Header = styled.header`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
 const Number = styled.div`
     color: ${colors.green};
     font-weight: 700;
@@ -130,7 +135,12 @@ class User extends React.Component {
                 <Container className="p-2">
                     <Row>
                         <Col lg={true}>
-                            <h4>Your all-time top artists</h4>
+                            <Header>
+                                <h4>Your all-time top artists</h4>
+                                <Button variant="outline-light" href={'/top-artists'}>
+                                    See more
+                                </Button>
+                            </Header>
                             <ColumnContainer>
                             {
                                 this.state.data.top_artists.map((artist) => (
@@ -151,7 +161,12 @@ class User extends React.Component {
                             </ColumnContainer>
                         </Col>
                         <Col lg={true}>
-                            <h4>Your all-time top tracks</h4>
+                            <Header>
+                                <h4>Your all-time top tracks</h4>
+                                <Button variant="outline-light" href={'/top-tracks'}>
+                                    See more
+                                </Button>
+                            </Header>
                             <ColumnContainer>
                             {
                                 this.state.data.top_tracks.map((track) => (
@@ -163,10 +178,8 @@ class User extends React.Component {
                     </Row>
                 </Container>
             </Container>
-                :
-                <Container fluid>
-                    <Spinner animation="border" />
-                </Container>
+            :
+            <Loader />
             }
             </div>
         );
