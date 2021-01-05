@@ -1,6 +1,7 @@
 import React from "react";
 import Container from 'react-bootstrap/Container';
 import styled from 'styled-components';
+import Artist from '../components/Artist';
 import Loader from '../components/Loader';
 import { media } from '../style/media';
 import theme from '../style/theme';
@@ -49,32 +50,6 @@ const ArtistsContainer = styled.div`
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-gap: 20px;
     margin-top: 50px;
-`;
-const Artist = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-`;
-const ArtistArtwork = styled.div`
-  display: inline-block;
-  position: relative;
-  width: 200px;
-  height: 200px;
-  img {
-    border-radius: 100%;
-    object-fit: cover;
-    width: 200px;
-    height: 200px;
-  }
-`;
-const ArtistName = styled.a`
-  margin: 30px 0;
-  color: #FFFFFF;
-  text-decoration: none;
-  &:hover {
-    color: #FFFFFF;
-  }
 `;
 
 class TopArtists extends React.Component {
@@ -152,15 +127,15 @@ class TopArtists extends React.Component {
                     </Header>
                     <ArtistsContainer>
                         {topArtists ? (
-                            topArtists.data.map(({ id,  external_urls, images, name }, idx) => (
-                                <Artist key={idx}>
-                                    <ArtistArtwork>
-                                        {images.length && <img src={images[1].url} alt="Artist" />}
-                                    </ArtistArtwork>
-                                    <ArtistName href={external_urls.spotify} target="_blank" rel="noopener noreferrer">
-                                        {name}
-                                    </ArtistName>
-                                </Artist>
+                            topArtists.data.map(({ id,  external_urls, images, name, followers, genres, popularity }, idx) => (
+                                <Artist 
+                                    external_urls={external_urls} 
+                                    images={images} 
+                                    name={name} 
+                                    followers={followers} 
+                                    genres={genres} 
+                                    popularity={popularity}
+                                />
                             ))
                         )
                         :
