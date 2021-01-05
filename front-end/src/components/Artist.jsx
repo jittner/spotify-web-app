@@ -6,10 +6,6 @@ import theme from '../style/theme';
 const { colors, fontSizes, spacing } = theme;
 
 const formatWithCommas = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const Header = styled.div`
-    display: flex;
-    justify-content: center;
-`;
 const ModalContainer = styled.div`
     display: flex;
     justify-content: center;
@@ -24,6 +20,7 @@ const Stats = styled.div`
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 10px;
     margin-top: ${spacing.sm};
+    margin-bottom: ${spacing.lg};
     text-align: center;
 `;
 const Stat = styled.div``;
@@ -57,6 +54,7 @@ const ArtistArtwork = styled.div`
     position: relative;
     width: 200px;
     height: 200px;
+    transition: all 0.25s cubic-bezier(0.3, 0, 0.4, 1);
     img {
         border-radius: 100%;
         object-fit: cover;
@@ -72,9 +70,19 @@ const ArtistArtwork = styled.div`
 const ArtistName = styled.a`
     margin: 30px 0;
     color: #FFFFFF;
-    text-decoration: none;
     &:hover {
-        color: #FFFFFF;
+        border-bottom: 1px solid ${colors.white};
+        color: ${colors.white};
+        cursor: pointer;
+    }
+`;
+const ArtistLink = styled.a`
+    color: ${colors.black};
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.3, 0, 0.4, 1);
+    &:hover {
+        color: ${colors.blue};
+        text-decoration: none;
     }
 `;
 
@@ -94,18 +102,16 @@ class Artist extends React.Component {
                 <ArtistArtwork>
                     {artist.images.length && <img src={artist.images[1].url} alt="Artist" onClick={handleShow} />}
                 </ArtistArtwork>
-                <ArtistName href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                <ArtistName onClick={handleShow}>
                     {artist.name}
                 </ArtistName>
                 <Modal show={this.state.show} onHide={handleClose} centered>
-                    <Modal.Header closeButton>
-                        {/* <Modal.Title>
-                            {artist.name}
-                        </Modal.Title> */}
-                    </Modal.Header>
+                    <Modal.Header closeButton className="border-0" />
                     <Modal.Body>
                         <ModalContainer>
-                            <h2>{artist.name}</h2>
+                            <ArtistLink href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                                <h2>{artist.name}</h2>
+                            </ArtistLink>
                             <Stats>
                                 <Stat>
                                     <NumLabel>Followers</NumLabel>
@@ -120,7 +126,7 @@ class Artist extends React.Component {
                                         ))}
                                         </Number>
                                     </Stat>
-                                    )}
+                                )}
                                 <Stat>
                                     <NumLabel>Popularity</NumLabel>
                                     <Number>{artist.popularity}/100</Number>

@@ -135,6 +135,7 @@ class TopArtists extends React.Component {
                                     followers={followers} 
                                     genres={genres} 
                                     popularity={popularity}
+                                    key={idx}
                                 />
                             ))
                         )
