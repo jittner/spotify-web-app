@@ -147,7 +147,7 @@ def get_playlist_info(playlist_id: str):
     return cs.get_playlist_analysis(spotify.access_token, playlist_id)
 
 
-@app.route('/playlists/copy', methods=['POST'])
+@app.route('/playlists/copies', methods=['POST'])
 @access_token_required
 def copy_playlist():
     request_data = request.get_json()
@@ -166,7 +166,7 @@ def find_duplicates():
     return jsonify(duplicates)
 
 
-@app.route('/recommendations/from-playlist/<playlist_id>', methods=['GET'])
+@app.route('/playlists/<playlist_id>/recommendations', methods=['GET'])
 @access_token_required
 def get_recommendations_from_playlist(playlist_id: str):
     # request_data = request.get_json()
@@ -179,7 +179,7 @@ def get_recommendations_from_playlist(playlist_id: str):
     return recommendations
 
 
-@app.route('/recommendations/from-user-history', methods=['GET', 'POST'])
+@app.route('/user/recommendations', methods=['GET', 'POST'])
 @access_token_required
 def get_recommendations_from_user():
     request_data = request.get_json()
