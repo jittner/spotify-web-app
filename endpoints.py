@@ -169,9 +169,6 @@ def find_duplicates():
 @app.route('/playlists/<playlist_id>/recommendations', methods=['GET'])
 @access_token_required
 def get_recommendations_from_playlist(playlist_id: str):
-    # request_data = request.get_json()
-    # playlist = request_data['playlist']
-    # target_length = request_data['length']
     recommendations = cs.get_playlist_recommendations(
         spotify.access_token,
         playlist_id,
