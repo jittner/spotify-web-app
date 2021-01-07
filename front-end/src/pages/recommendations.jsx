@@ -9,6 +9,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import styled from 'styled-components';
 import CreatePlaylist from '../components/CreatePlaylist';
 import Attributes from '../components/Attributes';
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import TrackObject from '../components/TrackObject';
 import { media } from '../style/media';
@@ -85,8 +86,12 @@ class Recommendations extends React.Component {
     }
     render() {
         const data = this.state.data;
+        const error = this.state.errorMessage;
         const handleClose = () => this.setState({show: false});
         const handleShow = () => this.setState({show: true});
+        if (error) {
+            return (<Error />);
+        }
         return (
             <Container className="p-2">
                 {data ? (

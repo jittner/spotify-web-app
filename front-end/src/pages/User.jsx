@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 import styled from 'styled-components';
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import TrackObject from '../components/TrackObject';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,11 +31,11 @@ const Header = styled.header`
 const Number = styled.div`
     color: ${colors.green};
     font-weight: 700;
-    font-size: 20px;
+    font-size: 23px;
 `;
 const NumLabel = styled.p`
     color: ${colors.lightGrey};
-    font-size: 12px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 0;
@@ -109,6 +110,10 @@ class User extends React.Component {
         this.getData();
     }
     render() {
+        const error = this.state.errorMessage;
+        if (error) {
+            return (<Error />);
+        }
         return (
             <div>
             {this.state.data ?

@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from "react-router-dom";
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import { media } from '../style/media';
 import theme from '../style/theme';
@@ -128,6 +129,10 @@ class UserPlaylists extends React.Component {
         this.getData();
     }
     render() { 
+        const error = this.state.errorMessage;
+        if (error) {
+            return (<Error />);
+        }
         return (
             <div>
                 <Container className="p-2">

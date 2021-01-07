@@ -36,6 +36,7 @@ scope = 'user-library-read,playlist-modify-private,user-top-read,playlist-read-p
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 app = flask.Flask(__name__)
+app.config['PROPAGATE_EXCEPTIONS'] = False
 app.secret_key = secret_key
 blueprint = make_spotify_blueprint(
     client_id=client_id, client_secret=client_secret, scope=scope)
@@ -195,6 +196,16 @@ def get_recommendations_from_user():
         request_data['length']
     )
     return recommendations
+
+
+@app.errorhandler(404)
+def handle_notfound(e):
+    return jsonify('Page not found!'), 404
+
+
+@app.errorhandler(500)
+def handle_notfound(e):
+    return jsonify('Something went wrong!'), 500
 
 
 if __name__ == '__main__':

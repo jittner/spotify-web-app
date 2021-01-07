@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Attributes from '../components/Attributes';
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import TrackObject from '../components/TrackObject';
 
@@ -119,7 +120,11 @@ class Playlist extends React.Component {
         this.getData();
     }
     render() {
-        const playlist = this.state.data;      
+        const error = this.state.errorMessage;
+        const playlist = this.state.data;
+        if (error) {
+            return (<Error />);
+        }      
         return (
             <div>
                 <Container className="p-2">

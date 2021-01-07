@@ -2,6 +2,7 @@ import React from "react";
 import Container from 'react-bootstrap/Container';
 import styled from 'styled-components';
 import Artist from '../components/Artist';
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import { media } from '../style/media';
 import theme from '../style/theme';
@@ -99,9 +100,12 @@ class TopArtists extends React.Component {
     }
 
     render() {
+        const error = this.state.errorMessage;
         const activeRange = this.state.activeRange;
         const topArtists = this.state.topArtists[activeRange];
-
+        if (error) {
+            return (<Error />);
+        }
         return (
             <div>
                 <Container className="p-2">

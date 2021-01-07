@@ -1,9 +1,7 @@
 import React from "react";
 import Container from 'react-bootstrap/Container';
-import Spinner from 'react-bootstrap/Spinner';
 import styled from 'styled-components';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Image from 'react-bootstrap/Image';
+import Error from '../components/Error';
 import Loader from '../components/Loader';
 import TrackObject from '../components/TrackObject';
 import { media } from '../style/media';
@@ -99,9 +97,12 @@ class TopTracks extends React.Component {
         this.getData('long_term');
     }
     render() {
+        const error = this.state.errorMessage;
         const activeRange = this.state.activeRange;
         const topTracks = this.state.topTracks[activeRange];
-
+        if (error) {
+            return (<Error />);
+        }
         return (
             <div>
                 <Container className="p-2">
