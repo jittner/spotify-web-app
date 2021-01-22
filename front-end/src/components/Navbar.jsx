@@ -3,6 +3,7 @@ import {
     BrowserRouter as Router,
     Route,
     Switch,
+    NavLink,
     Link,
     Redirect
   } from "react-router-dom";
@@ -111,6 +112,12 @@ const MenuItem = styled.li`
         border-left: 5px solid transparent;
         width: 100%;
         height: 100%;
+        ${media.tablet`
+            flex-grow: 1;
+            flex-basis: 100%;
+            height: 100%;
+            width: 100%;
+        `};
         &:hover,
         &:focus,
         &.active {
@@ -123,23 +130,14 @@ const MenuItem = styled.li`
                 border-top: 3px solid ${colors.offGreen};
             `};
         }
-        ${media.tablet`
-            flex-grow: 1;
-            flex-basis: 100%;
-            height: 100%;
-            width: 100%;
-        `};
-    }
+    };
     svg {
         width: 20px;
         height: 20px;
         margin-bottom: 7px;
-    }
+    };
 `;
 
-const isActive = ({ isCurrent }) => (isCurrent ? { className: 'active' } : null);
-
-const NavLink = props => <Link getProps={isActive} {...props} />;
 
 const Navbar = () => (
     <Container>
@@ -150,27 +148,27 @@ const Navbar = () => (
         </Logo>
         <Menu>
         <MenuItem>
-            <NavLink to="/">
-            <FontAwesomeIcon icon='user' size="2x" />
-            <div>Profile</div>
+            <NavLink exact to="/">
+                <FontAwesomeIcon icon='user' size="2x" />
+                <div>Profile</div>
             </NavLink>
         </MenuItem>
         <MenuItem>
             <NavLink to="/top-artists">
-            <FontAwesomeIcon icon='guitar' size="2x" />
-            <div>Top Artists</div>
+                <FontAwesomeIcon icon='guitar' size="2x" />
+                <div>Top Artists</div>
             </NavLink>
         </MenuItem>
         <MenuItem>
             <NavLink to="/top-tracks">
-            <FontAwesomeIcon icon='music' size="2x" />
-            <div>Top Tracks</div>
+                <FontAwesomeIcon icon='music' size="2x" />
+                <div>Top Tracks</div>
             </NavLink>
         </MenuItem>
         <MenuItem>
             <NavLink to="/playlists">
-            <FontAwesomeIcon icon='bars' size="2x" />
-            <div>Playlists</div>
+                <FontAwesomeIcon icon='bars' size="2x" />
+                <div>Playlists</div>
             </NavLink>
         </MenuItem>
         </Menu>

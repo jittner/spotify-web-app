@@ -40,7 +40,9 @@ def get_user_playlists(client) -> List[dict]:
     playlists = []
     paging_object = client.current_user_playlists()
     while paging_object:
-        playlists.extend(paging_object['items'])
+        for playlist in paging_object['items']:
+            if int(playlist['tracks']['total']) > 0:
+                playlists.append(playlist)
         if paging_object['next']:
             paging_object = client.next(paging_object)
         else:
@@ -87,6 +89,11 @@ def get_current_spotify_user(client):
 
 @get_spotipy_client
 def find_duplicate_songs(client, playlist_id: str) -> Tuple[dict, dict]:
+    """
+    Determine which tracks in a playlist are exact duplicates (based on
+    identical track IDs) or possible duplicates (matching artists and
+    track names, but different track IDs).
+    """
     tracks = get_tracks_from_playlist(client, playlist_id)
     track_positions = collections.defaultdict(list)
     artists = collections.defaultdict(dict)
@@ -210,22 +217,50 @@ def add_to_playlist(client, playlist_id: str, tracks: list) -> str:
 @get_spotipy_client
 def get_playlist_recommendations(client,
                                  playlist_id: str,
-                                 target_playlist_length: int = 20) -> dict:
+                                 target_length: int = 0) -> dict:
+    """
+    Generate recommended tracks based on a seed playlist, by clustering
+    the playlist tracks into 5 groups and selecting 1 track from each
+    to be used as seeds for the Spotify API.
+
+    Returns:
+        Dict containing:
+        - recommendations: dict with the recommended track objects
+        - seedAttributes: list of dicts containing the audio features of the
+        seed tracks used to generate the recommendations
+    """
     seed_playlist = client.playlist(playlist_id)
     seed_playlist_tracks = get_tracks_from_playlist(
         client, seed_playlist, seed_playlist['tracks'])
+    if not target_length:
+        target_length = select_target_length(len(seed_playlist_tracks))
     playlist_df = get_playlist_attributes_df(
         client, playlist_id, seed_playlist_tracks)
-    seed_tracks = cluster_playlist(playlist_df)
+    seed_tracks, seed_attributes = cluster_playlist(playlist_df)
     recommendations = client.recommendations(
         seed_tracks=seed_tracks,
-        limit=target_playlist_length
+        limit=target_length
     )
     recommendations['tracks'] = remove_playlist_track_overlaps(
         seed_playlist_tracks, recommendations['tracks'])
     recommendations = get_full_tracks_for_recommendations(
         client, recommendations)
-    return recommendations
+    response = {
+        'recommendations': recommendations,
+        'seedAttributes': seed_attributes
+    }
+    return response
+
+
+def select_target_length(seed_length: int) -> int:
+    if 0 <= seed_length < 25:
+        return 20
+    elif 25 <= seed_length < 40:
+        return 35
+    elif 40 <= seed_length < 70:
+        return 60
+    else:
+        return 100
 
 
 def remove_playlist_track_overlaps(first_playlist: list,
@@ -248,11 +283,20 @@ def remove_playlist_track_overlaps(first_playlist: list,
     return processed_playlist
 
 
-def cluster_playlist(playlist_df) -> List[str]:
+def cluster_playlist(playlist_df) -> Tuple[List[str], List[dict]]:
     """
     Use k-means clustering to group tracks into a target of 5
     clusters based on audio attributes, and then
     select 1 random song from each.
+
+    Args:
+        - playlist_df: DataFrame containing tracks and their attributes
+
+    Returns:
+        Tuple containing:
+        - seed_songs: List of track IDs representing the chosen tracks
+        - seed_attributes: List of attributes of the chosen tracks,
+        formatted to be easily parsed into a Recharts component
     """
     cluster_features = ['acousticness', 'danceability', 'instrumentalness',
                         'energy', 'speechiness']
@@ -267,7 +311,34 @@ def cluster_playlist(playlist_df) -> List[str]:
         cluster = df_cluster[kmm.labels_ == cluster_idx]
         cluster_sample = cluster.sample()
         seed_songs.extend(cluster_sample.index.values.tolist())
-    return seed_songs
+    seed_songs_df = playlist_df.loc[seed_songs, :]
+    seed_attributes = format_attributes_from_df(seed_songs_df)
+    return (seed_songs, seed_attributes)
+
+
+def format_attributes_from_df(tracks_df, data_id='1') -> List[dict]:
+    """
+    Get the average audio features of a list of tracks from
+    a DataFrame, and return them in a format to be easily parsed
+    by Recharts
+
+    Args: 
+        - tracks_df: DataFrame containing tracks and their attributes
+        - data_id: str to be used as the dataKey for a Recharts component
+    """
+    attributes = [
+        {'attribute': 'acousticness',
+            data_id: tracks_df['acousticness'].mean()},
+        {'attribute': 'danceability',
+            data_id: tracks_df['danceability'].mean()},
+        {'attribute': 'energy', data_id: tracks_df['energy'].mean()},
+        {'attribute': 'instrumentalness',
+            data_id: tracks_df['instrumentalness'].mean()},
+        {'attribute': 'liveness', data_id: tracks_df['liveness'].mean()},
+        {'attribute': 'speechiness', data_id: tracks_df['speechiness'].mean()},
+        {'attribute': 'valence', data_id: tracks_df['valence'].mean()},
+    ]
+    return attributes
 
 
 @get_spotipy_client
@@ -325,15 +396,7 @@ def get_playlist_analysis(client, playlist_id: str) -> dict:
         client, playlist, playlist['tracks'])
     playlist_df = get_playlist_attributes_df(
         client, playlist_id, playlist_tracks)
-    playlist_attributes = {
-        'acousticness': playlist_df['acousticness'].mean(),
-        'danceability': playlist_df['danceability'].mean(),
-        'energy': playlist_df['energy'].mean(),
-        'instrumentalness': playlist_df['instrumentalness'].mean(),
-        'liveness': playlist_df['liveness'].mean(),
-        'speechiness': playlist_df['speechiness'].mean(),
-        'valence': playlist_df['valence'].mean()
-    }
+    playlist_attributes = format_attributes_from_df(playlist_df)
     return {
         'attributes': playlist_attributes,
         'tracks': playlist_tracks,
