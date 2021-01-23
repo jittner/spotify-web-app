@@ -1,16 +1,14 @@
-import requests
 import json
-import spotipy
-import yaml
-import typing
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-import urllib
-from urllib.parse import urlencode
 import time
+import typing
+import urllib
 import webbrowser
 from functools import wraps
+from urllib.parse import urlencode
 
+import requests
+import spotipy
+import yaml
 
 API_KEY_FILE = 'auth.yaml'
 API_LIMIT = 50
@@ -28,20 +26,37 @@ class User():
 
     def __init__(self):
         self.__scope = 'user-library-read playlist-modify-private user-top-read'
-        self.__redirect = 'http://localhost:5000/callback'
+        self.__redirect = 'http://localhost:5000/login/callback'
         self.__client_id, self.__client_secret = self.__get_credentials()
         self.__access_token = None
         self.__refresh_token = None
         self.__token_expiry = None
         self.__client = None
 
+    def update_spotipy_client(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if not self.__is_token_valid():
+                self.__refresh_access_token(self.__refresh_token)
+                self.__client = spotipy.Spotify(auth=self.__access_token)
+            return func(self, *args, **kwargs)
+        return wrapper
+
     @update_spotipy_client
     def get_client(self):
         return self.__client
 
-    def open_auth_url(self):
-        auth_url = self.__get_auth_url()
-        webbrowser.open(auth_url)
+    def get_auth_url(self, state=None):
+        payload = {
+            'client_id': self.__client_id,
+            'response_type': 'code',
+            'redirect_uri': self.__redirect,
+            'scope': self.__scope,
+        }
+        if state is not None:
+            payload['state'] = state
+        urlparams = urlencode(payload)
+        return "%s?%s" % (self.AUTHORIZE_URL, urlparams)
 
     def get_access_token(self, code):
         payload = {
@@ -67,27 +82,6 @@ class User():
         with open(API_KEY_FILE, 'r') as config_file:
             config = yaml.load(config_file, Loader=yaml.FullLoader)
         return(config['spotify']['client_id'], config['spotify']['client_secret'])
-
-    def __get_auth_url(self, state=None):
-        payload = {
-            'client_id': self.__client_id,
-            'response_type': 'code',
-            'redirect_uri': self.__redirect,
-            'scope': self.__scope,
-        }
-        if state is not None:
-            payload['state'] = state
-        urlparams = urlencode(payload)
-        return "%s?%s" % (self.AUTHORIZE_URL, urlparams)
-
-    def update_spotipy_client(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if not self.__is_token_valid():
-                self.__refresh_access_token(self.__refresh_token)
-                self.__client = spotipy.Spotify(auth=self.__access_token)
-            return func(self, *args, **kwargs)
-        return wrapper
 
     def __refresh_access_token(self, refresh_token):
         response = requests.post(self.TOKEN_URL,

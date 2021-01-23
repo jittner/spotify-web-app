@@ -19,7 +19,6 @@ from oauthlib.oauth2.rfc6749.errors import (InvalidGrantError, OAuth2Error,
                                             TokenExpiredError)
 
 import client_services as cs
-# from user import User
 
 
 CONFIG_FILE = 'auth.yaml'
@@ -77,13 +76,14 @@ def access_token_required(func):
 @access_token_required
 def index():
     if not spotify.authorized:
+        # return {'url': url_for('spotify.login')}
         return redirect(url_for('spotify.login'))
     try:
         resp = spotify.get("/v1/me")
         assert resp.ok, resp.text
     except (InvalidGrantError, TokenExpiredError) as e:
         return redirect(url_for("spotify.login"))
-    return redirect('/user')
+    return redirect('http://localhost:3000/')
 
 
 @app.route('/logout')
@@ -207,5 +207,5 @@ def handle_notfound(e):
 
 
 if __name__ == '__main__':
-    # app.run(debug=True, host='localhost', port=5000)
-    app.run(debug=False, host='0.0.0.0', port=os.environ.get('PORT', 80))
+    app.run(debug=True, host='localhost', port=5000)
+    # app.run(debug=False, host='0.0.0.0', port=os.environ.get('PORT', 80))
