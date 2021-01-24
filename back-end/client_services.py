@@ -234,9 +234,15 @@ def get_playlist_recommendations(client,
         client, seed_playlist, seed_playlist['tracks'])
     if not target_length:
         target_length = select_target_length(len(seed_playlist_tracks))
-    playlist_df = get_playlist_attributes_df(
-        client, playlist_id, seed_playlist_tracks)
-    seed_tracks, seed_attributes = cluster_playlist(playlist_df)
+    if len(seed_playlist_tracks) < 5:
+        seed_tracks = [track['track']['id'] for track in seed_playlist_tracks]
+        playlist_df = get_playlist_attributes_df(
+            client, playlist_id, seed_playlist_tracks)
+        seed_attributes = format_attributes_from_df(playlist_df)
+    else:
+        playlist_df = get_playlist_attributes_df(
+            client, playlist_id, seed_playlist_tracks)
+        seed_tracks, seed_attributes = cluster_playlist(playlist_df)
     recommendations = client.recommendations(
         seed_tracks=seed_tracks,
         limit=target_length
