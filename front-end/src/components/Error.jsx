@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,20 +26,43 @@ const MessageContainer = styled.div`
     h2 {
         font-size: 40px;
     }
+    h4 {
+        margin-bottom: 30px;
+    }
 `;
 
-const Error = () => (
+const Error = ({errorCode}) => (
     <Container className="p-2">
-        <Centered>
-            <IconContainer>
-                <FontAwesomeIcon icon="robot" size="6x"/>
-            </IconContainer>
-            <MessageContainer>
-                <h1>500</h1>
-                <h2>Hmmm...something went wrong</h2>
-                <h4>If you manually entered the URL, it might be incorrect</h4>
-            </MessageContainer>
-        </Centered>
+        {errorCode == 401 ? 
+            (
+                <Centered>
+                    <IconContainer>
+                        <FontAwesomeIcon icon="times-circle" size="6x"/>
+                    </IconContainer>
+                    <MessageContainer>
+                        <h1>401</h1>
+                        <h2>Hmmm...something went wrong</h2>
+                        <h4>Check if third-party cookies are enabled, then try signing in again</h4>
+                        <Button href="http://localhost:5000/">
+                            <FontAwesomeIcon icon={['fab', 'spotify']} /> Connect with Spotify
+                        </Button>
+                    </MessageContainer>
+                </Centered>
+            )
+            :
+            (
+                <Centered>
+                    <IconContainer>
+                        <FontAwesomeIcon icon="robot" size="6x"/>
+                    </IconContainer>
+                    <MessageContainer>
+                        <h1>500</h1>
+                        <h2>Hmmm...something went wrong</h2>
+                        <h4>If you manually entered the URL, it might be incorrect</h4>
+                    </MessageContainer>
+                </Centered>
+            )
+        }
     </Container>
 );
 

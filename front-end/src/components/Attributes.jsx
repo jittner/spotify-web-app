@@ -1,7 +1,7 @@
 import React from "react";
-import { Surface, Radar, RadarChart, PolarGrid, Legend, Tooltip,
-    PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
-    LabelList, Label } from 'recharts';
+import { Radar, RadarChart, PolarGrid, Tooltip,
+    PolarAngleAxis, ResponsiveContainer,
+    } from 'recharts';
 import styled from 'styled-components';
 import theme from '../style/theme';
 const { colors } = theme;
@@ -53,9 +53,6 @@ const CustomTooltip = ({ active, payload, label }) => {
   };
 
 class Attributes extends React.Component {
-    constructor() {
-        super();
-    }
     render() {
         const attributes = this.props.data
         return (

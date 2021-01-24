@@ -104,7 +104,7 @@ class TopArtists extends React.Component {
         const activeRange = this.state.activeRange;
         const topArtists = this.state.topArtists[activeRange];
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }
         return (
             <div>

@@ -131,7 +131,7 @@ class UserPlaylists extends React.Component {
     render() { 
         const error = this.state.errorMessage;
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }
         return (
             <div>

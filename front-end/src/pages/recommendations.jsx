@@ -90,7 +90,7 @@ class Recommendations extends React.Component {
         const handleClose = () => this.setState({show: false});
         const handleShow = () => this.setState({show: true});
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }
         return (
             <Container className="p-2">
@@ -142,8 +142,8 @@ class Recommendations extends React.Component {
                             </Header>
                             <TracksContainer>
                                 {data.recommendations.tracks &&
-                                data.recommendations.tracks.map((track, i) => (
-                                    <TrackObject track={track} key={i} />
+                                data.recommendations.tracks.map((track, idx) => (
+                                    <TrackObject track={track} key={idx} />
                                 ))}
                             </TracksContainer>
                         </Col>

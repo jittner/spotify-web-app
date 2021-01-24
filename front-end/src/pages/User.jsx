@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Image from 'react-bootstrap/Image';
 import styled from 'styled-components';
 import Error from '../components/Error';
 import Loader from '../components/Loader';
@@ -105,14 +104,13 @@ class User extends React.Component {
             this.setState({errorMessage: error})
         });
     }
-
     componentDidMount() {
         this.getData();
     }
     render() {
         const error = this.state.errorMessage;
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }
         return (
             <div>
@@ -121,7 +119,7 @@ class User extends React.Component {
                 <Jumbotron fluid>
                     <Row className="justify-content-center">
                         {this.state.data.image ? (
-                            <img src={this.state.data.image} class="profile-picture"/>
+                            <img src={this.state.data.image} class="profile-picture" alt="user profile"/>
                         )
                         :
                         <FontAwesomeIcon icon='user' size="6x" />
@@ -148,8 +146,8 @@ class User extends React.Component {
                             </Header>
                             <ColumnContainer>
                             {
-                                this.state.data.top_artists.map((artist) => (
-                                    <li>
+                                this.state.data.top_artists.map((artist, idx) => (
+                                    <li key={idx}>
                                         <Artist>
                                             <ArtistArtwork>
                                             {artist.images.length && (
@@ -174,8 +172,8 @@ class User extends React.Component {
                             </Header>
                             <ColumnContainer>
                             {
-                                this.state.data.top_tracks.map((track) => (
-                                    <TrackObject track={track} />
+                                this.state.data.top_tracks.map((track, idx) => (
+                                    <TrackObject track={track} key={idx} />
                                 ))
                             }
                             </ColumnContainer>

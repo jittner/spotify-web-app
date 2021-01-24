@@ -15,6 +15,7 @@ const TrackContainer = styled.div`
     grid-template-columns: auto 1fr;
     align-items: center;
     margin-bottom: 20px;
+    font-family: AvenirNext;
 `;
 const TrackLeft = styled.span`
     overflow: hidden;

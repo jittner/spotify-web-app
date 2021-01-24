@@ -1,11 +1,7 @@
 import React from "react";
 import {
-    BrowserRouter as Router,
-    Route,
-    Switch,
     NavLink,
     Link,
-    Redirect
   } from "react-router-dom";
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

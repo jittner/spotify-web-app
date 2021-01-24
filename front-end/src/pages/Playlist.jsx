@@ -1,9 +1,9 @@
 import React from "react";
-import Container from 'react-bootstrap/Container';
-import styled from 'styled-components';
 import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Attributes from '../components/Attributes';
 import Error from '../components/Error';
@@ -123,7 +123,7 @@ class Playlist extends React.Component {
         const error = this.state.errorMessage;
         const playlist = this.state.data;
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }      
         return (
             <div>

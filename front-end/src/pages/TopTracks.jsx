@@ -101,7 +101,7 @@ class TopTracks extends React.Component {
         const activeRange = this.state.activeRange;
         const topTracks = this.state.topTracks[activeRange];
         if (error) {
-            return (<Error />);
+            return (<Error errorCode={error}/>);
         }
         return (
             <div>
@@ -128,8 +128,8 @@ class TopTracks extends React.Component {
                     </Header>
                     <TracksContainer>
                         {topTracks ? (
-                            topTracks.data.map((track) => (
-                                <TrackObject track={track} />
+                            topTracks.data.map((track, idx) => (
+                                <TrackObject track={track} key={idx} />
                             ))
                         )
                         :
