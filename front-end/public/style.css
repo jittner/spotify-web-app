@@ -4,99 +4,101 @@
     font-weight: normal;
     font-style: normal;
 }
-
 @font-face {
     font-family: Circular;
     src: url('fonts/circular-bold.otf') format('opentype');
     font-weight: bold;
 }
-
 @font-face {
     font-family: Circular;
     src: url('fonts/circular_light.otf') format('opentype');
     font-weight: light;
 }
-
 @font-face {
     font-family: Circular;
     src: url('fonts/circular-medium.otf') format('opentype');
     font-weight: 500;
 }
-
 @font-face {
     font-family: AvenirNext;
     src: url('fonts/AvenirNext.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }
-
 @font-face {
     font-family: AvenirNext;
     src: url('fonts/AvenirNext-Bold.otf') format('opentype');
     font-weight: bold;
 }
-
 @font-face {
     font-family: AvenirNext;
     src: url('fonts/AvenirNext-Medium.otf') format('opentype');
     font-weight: 500;
 }
-
 @font-face {
     font-family: AvenirNext;
     src: url('fonts/AvenirNext-Demi.otf') format('opentype');
     font-weight: 600;
 }
-
+body {
+    background-color: #181818;
+    color: #FFFFFF;
+}
 .jumbotron {
-    background-color: #1ED761;
+    /* background-color: #1ED761; */
+    background-image: linear-gradient(#666666, #181818);
     color: #FFFFFF;
     font-family: Circular, sans-serif;
 }
-
-.jumbotron h1 {
-    font-size: 5rem;
-    font-weight: bold;
-    padding-top: 6rem;
-    padding-bottom: 6rem;
-}
-
+    .jumbotron h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        /* padding-top: 6rem;
+        padding-bottom: 6rem; */
+    }
 .btn {
     border-width: 0;
     border-radius: 10rem;
     padding: 0.5rem 2rem;
     background-color: #1DB954;
     color: #FFFFFF;
+    text-transform: uppercase;
+    font-family: Circular;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 1px;
 }
-
-.btn:hover {
-    background-color: #1ED761;
-    text-decoration: none;
-    color: #FFFFFF;
+    .btn:active {
+        background-color: #168D40;
+    }
+    .btn:focus {
+        background-color: #168D40;
+    }
+    .btn:hover {
+        background-color: #1ED761;
+        text-decoration: none;
+        color: #FFFFFF;
+    }
+.btn-secondary {
+    background-color: #1DB954;
 }
-
 .a {
     color: #FFFFFF;
     text-decoration: none;
 }
-
-.a:hover {
-    text-decoration: none;
-}
-
+    .a:hover {
+        text-decoration: none;
+    }
 .card {
     font-family: Circular, sans-serif;
     /* border-radius: 0.6rem; */
 }
-
-.card p {
-    font-weight: light;
-}
-
-.card:hover {
-    text-decoration: none;
-}
-
+    .card p {
+        font-weight: light;
+    }
+    .card:hover {
+        text-decoration: none;
+    }
 .feature-card {
     font-family: AvenirNext, sans-serif;
     font-weight: 600;
@@ -107,18 +109,34 @@
     color: #FFFFFF;
     background-color: #1DB954;
     box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1);
-
 }
-
-.feature-card:hover {
-    background-color: #1ED761;
-    text-decoration: none;
-    color: #FFFFFF;
+    .feature-card:hover {
+        background-color: #1ED761;
+        text-decoration: none;
+        color: #FFFFFF;
+    }
+    .feature-card p {
+        padding-top: 2rem;
+        padding-right: 1.3rem;
+        padding-bottom: 3rem;
+        padding-left: 1.3rem;
+    }
+.profile-picture {
+    object-fit: cover;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    margin-bottom: 20px;
 }
-
-.feature-card p {
-    padding-top: 2rem;
-    padding-right: 1.3rem;
-    padding-bottom: 3rem;
-    padding-left: 1.3rem;
+.container {
+    font-family: Circular, sans-serif;
+}
+.container-fluid {
+    padding: 0
+}
+.tracks-list {
+    background-color: #181818;
+}
+.modal {
+    color: #181818;
 }
