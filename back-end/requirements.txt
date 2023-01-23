@@ -6,7 +6,7 @@ Flask_Cors==3.0.8
 oauthlib==3.1.0
 requests==2.22.0
 Flask==1.1.1
-spotipy==2.7.1
+spotipy==2.22.1
 numpy==1.18.2
 scikit_learn==0.24.0
 gunicorn==19.10.0
